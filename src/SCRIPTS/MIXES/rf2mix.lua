@@ -110,7 +110,7 @@ local function crossfirePopAll()
 end
 
 local function background()
-    pcall(crossfirePopAll)
+    _ = pcall(crossfirePopAll)
 end
 
 return { run=background }
