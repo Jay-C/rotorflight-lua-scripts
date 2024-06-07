@@ -92,7 +92,7 @@ local function crossfirePop()
                 local sensid = decU16(data, ptr)
                 local sensor = RFSensors[sensid]
                 ptr = ptr + 2
-        		if sensor then
+                if sensor then
                     local value = sensor.dec(data, ptr)
                     ptr = ptr + sensor.length
                     setTelemetryValue(sensid, 0, 0, value, sensor.unit, sensor.prec, sensor.name)
