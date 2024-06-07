@@ -3,39 +3,39 @@ local CRSF_FRAME_CUSTOM_TELEM   = 0x88
 
 
 local function decU8(data, pos)
-    return (data[pos]), (pos+1)
+    return data[pos], pos+1
 end
 
 local function decS8(data, pos)
-  local value = decU8(data,pos)
-  return (value < 0x80 and value or value - 0x100), (pos+1)
+  local val,pos = decU8(data,pos)
+  return val < 0x80 and val or val - 0x100, pos
 end
 
 local function decU16(data, pos)
-    return (bit32.lshift(data[pos],8) + data[pos+1]), (pos+2)
+    return bit32.lshift(data[pos],8) + data[pos+1], pos+2
 end
 
 local function decS16(data, pos)
-  local value = decU16(data,pos)
-  return (value < 0x8000 and value or value - 0x10000), (pos+2)
+  local val,pos = decU16(data,pos)
+  return val < 0x8000 and val or val - 0x10000, pos
 end
 
 local function decU24(data, pos)
-    return (bit32.lshift(data[pos],16) + bit32.lshift(data[pos+1],8) + data[pos+2]), (pos+3)
+    return bit32.lshift(data[pos],16) + bit32.lshift(data[pos+1],8) + data[pos+2], pos+3
 end
 
 local function decS24(data, pos)
-  local value = decU24(data,pos)
-  return (value < 0x800000 and value or value - 0x1000000), (pos+3)
+  local val,pos = decU24(data,pos)
+  return val < 0x800000 and val or val - 0x1000000, pos
 end
 
 local function decU32(data, pos)
-    return (bit32.lshift(data[pos],24) + bit32.lshift(data[pos+1],16) + bit32.lshift(data[pos+2],8) + data[pos+3]), (pos+4)
+    return bit32.lshift(data[pos],24) + bit32.lshift(data[pos+1],16) + bit32.lshift(data[pos+2],8) + data[pos+3], pos+4
 end
 
 local function decS32(data, pos)
-  local value = decU32(data,pos)
-  return (value < 0x80000000 and value or value - 0x100000000), (pos+4)
+  local val,pos = decU32(data,pos)
+  return val < 0x80000000 and val or val - 0x100000000, pos
 end
 
 local RFSensors = {
@@ -87,14 +87,14 @@ local function crossfirePop()
     local command, data = crossfireTelemetryPop()
     if command ~= nil and data ~= nil then
         if command == CRSF_FRAME_CUSTOM_TELEM then
-            local sid, sensor, val
+            local sid, val
             local ptr = 1
             while ptr <= #data - 2 do
                 sid,ptr = decU16(data, ptr)
-                sensor = RFSensors[sensid]
+                local sensor = RFSensors[sid]
                 if sensor then
                     val,ptr = sensor.dec(data, ptr)
-                    setTelemetryValue(sid, 0, 0, value, sensor.unit, sensor.prec, sensor.name)
+                    setTelemetryValue(sid, 0, 0, val, sensor.unit, sensor.prec, sensor.name)
                 else
                     break
                 end
@@ -110,7 +110,7 @@ local function crossfirePopAll()
 end
 
 local function background()
-    local success = pcall(crossfirePopAll)
+    pcall(crossfirePopAll)
 end
 
 return { run=background }
