@@ -3,17 +3,6 @@ local options = {}
 
 local CRSF_FRAME_CUSTOM_TELEM   = 0x88
 
-local units = {
-  [UNIT_RAW]    = "",
-  [UNIT_VOLTS]  = "V",
-  [UNIT_AMPS]   = "A",
-  [UNIT_KTS]    = "Kts",
-  [UNIT_KMH]    = "Kph",
-  [UNIT_METERS] = "m",
-  [UNIT_RPMS]   = "rpm",
-  [UNIT_DEGREE] = "deg",
-}
-
 
 local function decU8(data, pos)
   return data[pos], pos+1
@@ -53,10 +42,12 @@ end
 
 
 local RFSensors = {
-  [0x00A3]  = { name="Tcpu",       unit=UNIT_CELSIUS,             prec=0,  length=1,  dec=decU8, value=0, count=0 },
-  [0x0142]  = { name="CPU%",       unit=UNIT_PERCENT,             prec=0,  length=1,  dec=decU8, value=0, count=0 },
-  [0x0143]  = { name="SYS%",       unit=UNIT_PERCENT,             prec=0,  length=1,  dec=decU8, value=0, count=0 },
-  [0x0144]  = { name="RT% ",       unit=UNIT_PERCENT,             prec=0,  length=1,  dec=decU8, value=0, count=0 },
+  [0x0081]  = { name="Vbec",       unit=UNIT_VOLTS,               prec=2,    dec=decU16,  value=0,  count=0    },
+  [0x0082]  = { name="Vbus",       unit=UNIT_VOLTS,               prec=2,    dec=decU16,  value=0,  count=0    },
+  [0x0083]  = { name="Vmcu",       unit=UNIT_VOLTS,               prec=2,    dec=decU16,  value=0,  count=0  },
+  [0x00A3]  = { name="Tcpu",       unit=UNIT_CELSIUS,             prec=0,    dec=decU8,   value=0,  count=0  },
+  [0x0142]  = { name="CPU%",       unit=UNIT_PERCENT,             prec=0,    dec=decU8,   value=0,  count=0  },
+  [0x0144]  = { name="RT% ",       unit=UNIT_PERCENT,             prec=0,    dec=decU8,   value=0,  count=0  },
 }
 
 local total_frames = 0
@@ -123,10 +114,6 @@ local function refresh(wgt)
   lcd.drawText(x, y, txt, 0)
   y = y + 16
 
-  local txt = string.format("Last ID: %d", last_id)
-  lcd.drawText(x, y, txt, 0)
-  y = y + 16
-
   for i,s in pairs(RFSensors) do
     local txt = string.format("%04X: [%d]  %s = %s", i, s.count, s.name, s.value)
     lcd.drawText(x, y, txt, 0)
@@ -135,4 +122,4 @@ local function refresh(wgt)
 end
 
 
-return { name="RF2Tst", options=options, create=create, update=update, refresh=refresh, background=background }
+return { name="DEBUG", options=options, create=create, update=update, refresh=refresh, background=background }
