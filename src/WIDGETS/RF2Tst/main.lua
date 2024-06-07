@@ -20,8 +20,8 @@ local function decU8(data, pos)
 end
 
 local function decS8(data, pos)
-local val,pos = decU8(data,pos)
-return val < 0x80 and val or val - 0x100, pos
+  local val,ptr = decU8(data,pos)
+  return val < 0x80 and val or val - 0x100, ptr
 end
 
 local function decU16(data, pos)
@@ -29,8 +29,8 @@ local function decU16(data, pos)
 end
 
 local function decS16(data, pos)
-local val,pos = decU16(data,pos)
-return val < 0x8000 and val or val - 0x10000, pos
+  local val,ptr = decU16(data,pos)
+  return val < 0x8000 and val or val - 0x10000, ptr
 end
 
 local function decU24(data, pos)
@@ -38,8 +38,8 @@ local function decU24(data, pos)
 end
 
 local function decS24(data, pos)
-local val,pos = decU24(data,pos)
-return val < 0x800000 and val or val - 0x1000000, pos
+  local val,ptr = decU24(data,pos)
+  return val < 0x800000 and val or val - 0x1000000, ptr
 end
 
 local function decU32(data, pos)
@@ -47,8 +47,8 @@ local function decU32(data, pos)
 end
 
 local function decS32(data, pos)
-local val,pos = decU32(data,pos)
-return val < 0x80000000 and val or val - 0x100000000, pos
+  local val,ptr = decU32(data,pos)
+  return val < 0x80000000 and val or val - 0x100000000, ptr
 end
 
 
