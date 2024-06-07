@@ -16,39 +16,39 @@ local units = {
 
 
 local function decU8(data, pos)
-    return data[pos]
+    return (data[pos]),(pos+1)
 end
 
 local function decS8(data, pos)
   local value = decU8(data,pos)
-  return value < 0x80 and value or value - 0x100
+  return (value < 0x80 and value or value - 0x100), (pos+1)
 end
 
 local function decU16(data, pos)
-    return bit32.lshift(data[pos],8) + data[pos+1]
+    return (bit32.lshift(data[pos],8) + data[pos+1]), (pos+2)
 end
 
 local function decS16(data, pos)
   local value = decU16(data,pos)
-  return value < 0x8000 and value or value - 0x10000
+  return (value < 0x8000 and value or value - 0x10000), (pos+2)
 end
 
 local function decU24(data, pos)
-    return bit32.lshift(data[pos],16) + bit32.lshift(data[pos+1],8) + data[pos+2]
+    return (bit32.lshift(data[pos],16) + bit32.lshift(data[pos+1],8) + data[pos+2]), (pos+3)
 end
 
 local function decS24(data, pos)
   local value = decU24(data,pos)
-  return value < 0x800000 and value or value - 0x1000000
+  return (value < 0x800000 and value or value - 0x1000000), (pos+3)
 end
 
 local function decU32(data, pos)
-    return bit32.lshift(data[pos],24) + bit32.lshift(data[pos+1],16) + bit32.lshift(data[pos+2],8) + data[pos+3]
+    return (bit32.lshift(data[pos],24) + bit32.lshift(data[pos+1],16) + bit32.lshift(data[pos+2],8) + data[pos+3]), (pos+4)
 end
 
 local function decS32(data, pos)
   local value = decU32(data,pos)
-  return value < 0x80000000 and value or value - 0x100000000
+  return (value < 0x80000000 and value or value - 0x100000000), (pos+4)
 end
 
 
@@ -69,20 +69,20 @@ local function crossfirePop()
     if command ~= nil and data ~= nil then
         if command == CRSF_FRAME_CUSTOM_TELEM then
             total_frames = total_frames + 1
+            local sid = 0
             local ptr = 1
+            local val = 0
             while ptr <= #data - 2 do
                 total_loops = total_loops + 1
-                local sensid = decU16(data, ptr)
-                local sensor = RFSensors[sensid]
-                last_id = sensid
-                ptr = ptr + 2
+                sid,ptr = decU16(data, ptr)
+                local sensor = RFSensors[sid]
+                last_id = sid
         		    if sensor then
                     total_sensors = total_sensors + 1
-                    local value = sensor.dec(data, ptr)
-                    sensor.value = value
+                    val,ptr = sensor.dec(data, ptr)
+                    sensor.value = val
                     sensor.count = sensor.count + 1
-                    ptr = ptr + sensor.length
-                    setTelemetryValue(sensid, 0, 0, value, sensor.unit, sensor.prec, sensor.name)
+                    setTelemetryValue(sid, 0, 0, val, sensor.unit, sensor.prec, sensor.name)
                 else
                     break
                 end
