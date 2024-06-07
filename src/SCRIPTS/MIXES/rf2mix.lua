@@ -38,8 +38,9 @@ local function decS32(data, pos)
   return val < 0x80000000 and val or val - 0x100000000, ptr
 end
 
+
 local RFSensors = {
-    [0x0001]  = { name="Modl",       unit=UNIT_RAW,                 prec=0,    dec=decU8   },
+    [0x0001]  = { name="ID  ",       unit=UNIT_RAW,                 prec=0,    dec=decU8   },
     [0x0011]  = { name="Vbat",       unit=UNIT_VOLTS,               prec=2,    dec=decU16  },
     [0x0012]  = { name="Curr",       unit=UNIT_AMPS,                prec=2,    dec=decU16  },
     [0x0013]  = { name="Capa",       unit=UNIT_MAH,                 prec=3,    dec=decU16  },
@@ -62,18 +63,18 @@ local RFSensors = {
     [0x00B2]  = { name="Var ",       unit=UNIT_METERS,              prec=2,    dec=decS16  },
     [0x00C0]  = { name="Hspd",       unit=UNIT_RPMS,                prec=0,    dec=decU16  },
     [0x00C1]  = { name="Tspd",       unit=UNIT_RPMS,                prec=0,    dec=decU16  },
-    [0x0101]  = { name="Ptch",       unit=UNIT_DEGREE,              prec=1,    dec=decU16  },
-    [0x0102]  = { name="Roll",       unit=UNIT_DEGREE,              prec=1,    dec=decU16  },
-    [0x0103]  = { name="Yaw ",       unit=UNIT_DEGREE,              prec=1,    dec=decU16  },
+    [0x0101]  = { name="Ptch",       unit=UNIT_DEGREE,              prec=0,    dec=decS16  },
+    [0x0102]  = { name="Roll",       unit=UNIT_DEGREE,              prec=0,    dec=decS16  },
+    [0x0103]  = { name="Yaw ",       unit=UNIT_DEGREE,              prec=0,    dec=decS16  },
     [0x0111]  = { name="AccX",       unit=UNIT_G,                   prec=1,    dec=decS16  },
     [0x0112]  = { name="AccY",       unit=UNIT_G,                   prec=1,    dec=decS16  },
     [0x0113]  = { name="AccZ",       unit=UNIT_G,                   prec=1,    dec=decS16  },
-    [0x0121]  = { name="SATS",       unit=UNIT_RAW,                 prec=0,    dec=decU8   },
+    [0x0121]  = { name="Sats",       unit=UNIT_RAW,                 prec=0,    dec=decU8   },
     [0x0122]  = { name="Ghdg",       unit=UNIT_DEGREE,              prec=1,    dec=decS16  },
     [0x0123]  = { name="Galt",       unit=UNIT_METERS,              prec=1,    dec=decS16  },
     [0x0124]  = { name="Gdst",       unit=UNIT_METERS,              prec=1,    dec=decU16  },
     [0x0124]  = { name="Gdspd",      unit=UNIT_METERS_PER_SECOND,   prec=2,    dec=decU16  },
-    [0x0141]  = { name="TIME",       unit=UNIT_RAW,                 prec=0,    dec=decU16  },
+    [0x0141]  = { name="UpTm",       unit=UNIT_RAW,                 prec=0,    dec=decU16  },
     [0x0142]  = { name="CPU%",       unit=UNIT_PERCENT,             prec=0,    dec=decU8   },
     [0x0143]  = { name="SYS%",       unit=UNIT_PERCENT,             prec=0,    dec=decU8   },
     [0x0144]  = { name="RT% ",       unit=UNIT_PERCENT,             prec=0,    dec=decU8   },
@@ -87,7 +88,8 @@ local function crossfirePop()
     local command, data = crossfireTelemetryPop()
     if command ~= nil and data ~= nil then
         if command == CRSF_FRAME_CUSTOM_TELEM then
-            local sid, val
+            local sid = 0
+            local val = 0
             local ptr = 1
             while ptr <= #data - 2 do
                 sid,ptr = decU16(data, ptr)
