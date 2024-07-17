@@ -308,6 +308,8 @@ local RFSensors = {
 local telemetryFrameId = 0
 local telemetryFrameSkip = 0
 local telemetryFrameCount = 0
+local telemetrySensorCount = 0
+local telemetrySensorSkip = 0
 
 local function crossfirePop()
     local command, data = crossfireTelemetryPop()
@@ -326,16 +328,20 @@ local function crossfirePop()
                 sid,ptr = decU16(data, ptr)
                 local sensor = RFSensors[sid]
                 if sensor then
+                    telemetrySensorCount = telemetrySensorCount + 1
                     val,ptr = sensor.dec(data, ptr)
                     if val then
                         setTelemetryValue(sid, 0, 0, val, sensor.unit, sensor.prec, sensor.name)
                     end
                 else
+                    telemetrySensorSkip = telemetrySensorSkip + 1
                     break
                 end
             end
-            setTelemetryValue(0xFE11, 0, 0, telemetryFrameCount, UNIT_RAW, 0, "*Cnt")
-            setTelemetryValue(0xFE12, 0, 0, telemetryFrameSkip, UNIT_RAW, 0, "*Skp")
+            setTelemetryValue(0xFF00, 0, 0, telemetryFrameCount, UNIT_RAW, 0, "*Cnt")
+            setTelemetryValue(0xFF01, 0, 0, telemetryFrameSkip, UNIT_RAW, 0, "*Skp")
+            setTelemetryValue(0xFF02, 0, 0, telemetrySensorCount, UNIT_RAW, 0, "$Cnt")
+            setTelemetryValue(0xFF03, 0, 0, telemetrySensorSkip, UNIT_RAW, 0, "$Skp")
         end
         return true
     end
